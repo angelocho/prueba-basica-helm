@@ -1,0 +1,30 @@
+{{- range $key, $value := .Values.pods }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "mychart.labels" . | nindent 4 }}
+    app: {{ $.Values.app }}
+  name: {{ $.Values.app }}-{{ $value.name }}
+spec:
+  replicas: {{ $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $.Values.app }}
+  template:
+    metadata:
+      labels:
+        app: {{ $.Values.app }}
+    spec:  
+      containers:
+      - image: "{{ $value.repository | default "nginx" }}:{{ $value.tag | default "latest" }}" 
+        imagePullPolicy: {{ $value.pullPolicy }}
+        resources: {}  
+        name: "{{ $value.repository }}-{{ $.Values.app }}"
+        ports: 
+          - name: http
+            containerPort: {{ $value.containerPort }}
+            protocol: TCP
+  
+{{- end }} 
